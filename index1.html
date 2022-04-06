@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SocialAuth</title>
+    <link rel="stylesheet" href="main.css">
+    <style media="screen">
+      #fb-btn{margin-top:20px;}
+      #profile, #logout, #feed{display:none}
+    </style>
+  </head>
+  <body>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '376829110974266',
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v2.8'
+        });
+        FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+        });
+      };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+       function statusChangeCallback(response){
+         if(response.status === 'connected'){
+           console.log('Logged in and authenticated');
+           setElements(true);
+           testAPI();
+         } else {
+           console.log('Not authenticated');
+           setElements(false);
+         }
+       }
+
+      function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+          statusChangeCallback(response);
+        });
+      }
+      function testAPI(){
+        FB.api('/me?fields=name,email,birthday,location', function(response){
+          if(response && !response.error){
+            //console.log(response);
+            buildProfile(response);
+          }
+          FB.api('/' + 'me' + '/feed','post',
+          {
+            message: message,
+            access_token: identity,
+            scheduled_publish_time: scheduled_date,
+            published: false
+          }, function (response) {
+          if (response && !response.error) {
+            console.log(response);
+            $("#post-published-message").css("display", "inline-block").fadeIn().delay(2000).fadeOut();
+            addToTimeline(response.id);
+            $('#comment').val("");
+            $('#datepicker').val("");
+          }
+          else {
+            handleError(response);
+          }
+        }
+      );
+    })
+  }
+  function buildProfile(user){
+    let profile = `
+      <ul class="list-group">
+        <li class="list-group-item">Email: ${user.name}</li>
+        <li class="list-group-item">User ID: ${user.id}</li>
+        <li class="list-group-item">Birthday: ${user.birthday}</li>
+        <li class="list-group-item">User ID: ${user.location.name}</li>
+      </ul>`;
+      document.getElementById('profile').innerHTML = profile;
+  }
+  function logout(){
+    FB.logout(function(response){
+      setElements(false);
+    });
+  }
+  var AppID = '384860646823583';
+  var FBLoaded = false;
+  var token = 'EAAJ1rNnFCvMBAD1ZBPfqKDooASj8FjIjpYAhZBbLOvLuZAnLZC6D8LB7EwJcFkF8V3h3wdrIGaCDjLnnpEg08h8oKDmIpjaZCset8VVLmG2My9vZCjqU29oqC7d3DGxaywsZCJNqfj3IVfZCRyy8lueyNBg9tFzs15vfAzA2q2hY57stC7MzjvuR76qDDYL21AE1dGpQVGhWAbIHA2nKs7hHxZCKTTX9XPcYZD';
+  // [1] Load lên các thành phần cần thiết
+  window.fbAsyncInit = function () {
+    FB.init({
+      appId: AppID,
+      cookie: true,
+      xfbml: true,
+      version: 'v2.7'          
+    });
+    FBLoaded = true;
+    // Kiểm tra trạng thái hiện tại
+    FB.getLoginStatus(function (response) {
+      statusChangeCallback(response);
+    });
+  };
+  // [2] Xử lý trạng thái đăng nhập
+  function statusChangeCallback(response) {
+  // Người dùng đã đăng nhập FB và đã đăng nhập vào ứng dụng
+    if (response.status === 'connected') {
+      ShowWelcome();
+      testAPI();
+    }
+    // Người dùng đã đăng nhập FB nhưng chưa đăng nhập ứng dụng
+    else if (response.status === 'not_authorized') {
+      ShowLoginButton();
+    }
+    // Người dùng chưa đăng nhập FB
+    else {                
+      ShowLoginButton();
+    }
+  }
+  // [3] Yêu cầu đăng nhập FB
+  function RequestLoginFB() {
+    window.location = 'http://graph.facebook.com/oauth/authorize?client_id=' + AppID + '&scope=publish_pages,manage_pages,pages_show_list,public_profile,email,user_likes,user_birthday,user_education_history,user_work_history,user_posts,user_photos,user_location,publish_actions&redirect_uri=http://localhost/socialauth/index2.html&response_type=token';
+  }
+  // [4] Hiển thị nút đăng nhập
+  function ShowLoginButton() {
+    document.getElementById('btb').setAttribute('style', 'display:block');
+    document.getElementById('lbl').setAttribute('style', 'display:none');
+    document.getElementById('fb-btn').setAttribute('style', 'display:block');
+    document.getElementById('btbLogout').setAttribute('style', 'display:none');
+    document.getElementById('profile').setAttribute('style', 'display:none');
+  }
+  // [5] Chào mừng người dùng đã đăng nhập
+  function ShowWelcome() {
+    document.getElementById('btb').setAttribute('style', 'display:none');
+    document.getElementById('fb-btn').setAttribute('style', 'display:none');
+    document.getElementById('btbLogout').setAttribute('style', 'display:block');
+    document.getElementById('profile').setAttribute('style', 'display:block');
+    FB.api('/me', function (response) {
+      var name = response.name;
+      var id = response.id;
+      document.getElementById('lbl').setAttribute('style', 'display:block');
+    });
+  }
+  //[6] Post status lên tường nhà
+  function POST() {
+    if (FBLoaded) {
+      var ms = document.getElementById('message').value;
+      var acp = token;
+      FB.api('/me/feed', 'post', { message: ms, access_token:acp }, function (response) {
+        if (!response || response.error) {
+          alert('Có lỗi khi POST bài: ');
+          console.log(response);
+        } else {
+          document.getElementById('postid').value = response.id;
+            alert('ĐÃ POST THÀNH CÔNG');
+          }
+      });
+    } else {
+      setTimeout("POST()", 100);
+    }
+  } 
+  function POST_PHOTO() {
+    if (FBLoaded) {
+      var ms = document.getElementById('url').value;
+      var acp = token;
+      FB.api('/me/photos', 'post', { url: ms, access_token:acp }, function (response) {
+        if (!response || response.error) {
+          alert('Có lỗi khi POST bài: ');
+          console.log(response);
+        } else {
+          document.getElementById('postid').value = response.id;
+            alert('ĐÃ POST THÀNH CÔNG');
+          }
+      });
+    } else {
+      setTimeout("POST()", 100);
+    }
+  }       
+  // [7] Delete status đã lên tường nhà
+  function DELETE() {
+    if (FBLoaded) {
+      var postid = document.getElementById('postid').value;
+      ac = token;
+      FB.api(postid, 'delete', { access_token : ac}, function (response) {
+        if (!response || response.error) {
+          alert('Có lỗi khi xóa bài');
+        } else {
+          alert('Đã xóa thành công');
+        }
+      });
+    } else {
+      setTimeout("DELETE()", 100);
+    }
+  }
+  // [8] Đăng xuất khỏi ứng
+  function FBLogout() {
+    if (FBLoaded) {
+    // Logout
+      FB.logout();
+      // Kiểm tra lại trạng thái đăng nhập
+      FB.getLoginStatus(function (response) {
+        statusChangeCallback(response);
+      });
+    } else {
+      setTimeout("FBLogout()", 100);
+      }
+  }
+  </script>
+  <div class="container">
+    <div id="feed"></div>
+    <div class="hiden" style="display: none;">
+      <input id="btb" type="button" value="ĐĂNG NHẬP" onclick="RequestLoginFB()"/>
+    </div>
+    <p id="lbl" style="display:none"></p>
+    <div class="btn-fb-api">
+      <fb:login-button
+        id="fb-btn"
+        scope="public_profile,email,user_birthday,user_location,user_posts"
+        onlogin="checkLoginState();">
+    </fb:login-button>
+    </div>
+    <div id="btbLogout">
+      <div class="btn">
+        <input class="logout-btn" type="button" value="THOÁT" onclick="FBLogout()" />
+      </div>
+      <div class="width-100">
+        <div class="width-50 container__fb">
+          <div class="container__like">        
+            <!-- HIỂN THỊ PAGE -->
+            <div class="fb-page" data-href="https://www.facebook.com/Funny-107169885265469" data-tabs="timeline" data-width="1200" data-height="00" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/Funny-107169885265469" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/Funny-107169885265469"></a></blockquote></div>
+            <!-- HIỂN THỊ NÚT LUIKE -->
+            <div class="fb-like" data-href="http://localhost/socialauth/index2.html" data-layout="box_count" data-action="like" data-size="small" data-show-faces="false" data-share="false"></div>
+            <!-- COMMENT -->
+            <div class="fb-comments" data-href="https://www.facebook.com/Funny-107169885265469" data-numposts="10"></div>
+          </div>
+        </div>
+        <div class="width-50 post-api">
+          <div class="height-50 user-information">
+            <p class="user-name">User</p>
+            <div id="profile"></div>
+          </div>
+          <div class="height-50">
+            <p class="title-name">POST API</p>
+            <div class="background-post-api">
+              <div class="row-1">
+                <input type="text" name="message" id="message" placeholder="Post message"/>
+                <input class="btn-send" type="button" value="GỬI" onclick="POST()"/>
+              </div>
+              <div class="row-1">
+                <input type="text" name="message" id="url" placeholder="Post photo"/>
+                <input class="btn-send" type="button" value="GỬI" onclick="POST_PHOTO()"/>
+              </div>
+              <div class="row-2">
+                <input type="text" name="postid" id="postid" placeholder="delete post of id"/>
+                <input class="btn-send" type="button" value="XÓA" onclick="DELETE()" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

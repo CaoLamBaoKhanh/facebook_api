@@ -1,0 +1,115 @@
+
+body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;  
+    background-color: #f0f2f5;  
+}
+.btbLogout{
+    position: relative;
+    z-index: 2;
+}
+.logout-btn {
+    position: fixed;
+    right: 0;
+    top: 0;    
+    z-index: 2;
+}
+
+.btn-fb-api{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+}
+
+.container__fb {
+    position: relative;
+}
+
+.container__like {
+    position: absolute;
+    top: 0;
+    
+}
+
+.width-100 {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    
+}
+
+.width-50 {
+    width: 50%;
+    display: block;
+    float: left;
+    height: 90vh;
+}
+
+.post-api{
+    width: 50%;
+    background-color: #181818;
+    color: white;
+    height: 100vh;
+}
+
+.row-1{
+    margin-bottom: 20px;
+}
+.row-2{
+    margin-bottom: 20px;
+}
+
+#message,#postid,#url{
+    width: 200px;
+    padding: 8px;
+}
+
+.title-name{
+    font-size: 1.4rem;
+    font-weight: 900;
+    text-align: center;
+    margin-top: 210px;
+}
+.background-post-api {
+    text-align: center;
+    margin-top: 50px;
+    position: relative;
+}
+
+.btn-send {
+    width: 50px;
+    padding: 8px;
+}
+
+.container__like{
+    text-align: center;
+}
+
+.height-50 {
+    height: 200px;
+}
+
+.user-information{
+    background-color: #342626;
+    color: #f0f2f5;
+    width: 50%;
+    position: absolute;
+    top: 0;
+}
+
+.user-name {
+    text-align: center;
+    color: #f0f2f5;
+    font-size: 1.4rem;
+}
+
+
+#profile li{
+    margin-left: 270px;
+}
+
+.list-group {
+    list-style: none;
+}
